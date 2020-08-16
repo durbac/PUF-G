@@ -1,3 +1,5 @@
+The syntactical representation (grammar) of the proposed language in our {\tt PUF-G} framework is described below.
+
 TOP::               MODULE TOP | MODULE
 MODULE::            begin PRIMITIVE ( INPUT_DEF )
                         STATEMENTS
