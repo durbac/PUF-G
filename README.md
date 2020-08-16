@@ -1,6 +1,4 @@
-# PUF-G
-
-PUF-G: A CAD Framework for Automated Assessment of Provable Learnability from Formal PUF Representations
+# PUF-G: A CAD Framework for Automated Assessment of Provable Learnability from Formal PUF Representations
 
 The (simplified) syntactical representation (grammar) of the proposed language in our PUF-G framework is described below.
 
