@@ -1,0 +1,32 @@
+begin_mod FFAPUF (num n, vec c, bit en, num ff_in, num ff_out)
+	<t,b> = FF_DELAY_CHAIN(n,c,en,ff_in, ff_out);
+	apuf_out = ARBITER(<t,b>);
+	return (bit apuf_out);
+end_mod FFAPUF
+
+begin_mod FF_DELAY_CHAIN (num n,vec c,bit en,num ff_in,num ff_out )
+	t = en;
+	b = en;
+	serial i=1 to n-1 do
+		<t,b> = SWITCH_2X2 (<t,b>,ci);
+		if i==ff_in then
+			arb_int = ARBITER(<t,b>);
+		end_if
+		if i==ff_out then
+			ci = arb_int;
+		end_if
+	end_serial
+	<t,b> = SWITCH_2X2 (<t,b>, cn);
+	return (vec<t,b>);
+end_mod FF_DELAY_CHAIN
+
+begin_mod SWITCH_2X2 (bit t_in, bit b_in, bit c_in) 
+	top_out = MUX_2X1(t_in, b_in, c_in);
+	bot_out = MUX_2X1(b_in, t_in, c_in);
+	return (vec <top_out, bot_out>);
+end_mod SWITCH_2X2
+
+
+
+
+	

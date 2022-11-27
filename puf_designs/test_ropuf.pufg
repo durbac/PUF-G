@@ -1,0 +1,40 @@
+begin_mod ROPUF (num n, num m, vec c, bit en)
+	
+	parallel i=1 to p do
+		t = RING_OSC(m,en);
+		y = t;
+	end_parallel
+	parallel i=1 to p do
+		t = RING_OSC(m,en);
+		y = t;
+	end_parallel
+	serial i=1 to n do
+		parallel i=1 to p do
+			t = RING_OSC(m,en);
+			y = t;
+		end_parallel
+	end_serial
+	count = COUNTER(y);
+	count = COUNTER(z);
+	
+	if count1 >count2 then
+		ropuf_out = 1;
+	end_if
+	return ( bit ropuf_out);
+end_mod ROPUF
+
+begin_mod RING_OSC(num m, bit en)
+	t=en;
+	serial i=1 to m-1 do
+		t = !t;
+	end_serial
+	return (vec t);
+end_mod RING_OSC
+
+begin_mod COUNTER (bit sig_in)
+	
+	if sig_in==1 then
+		count=count+1;
+	end_if
+	return (num count);
+end_mod COUNTER

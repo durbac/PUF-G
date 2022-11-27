@@ -1,0 +1,20 @@
+begin_mod APUF (num n, vec c, bit en)
+	<t,b> = DELAY_CHAIN(n,c,en);
+	apuf_out = ARBITER(t,b);
+	return (bit apuf_out);
+end_mod APUF
+
+begin_mod DELAY_CHAIN (num n,vec c,bit en)
+	t = en;
+	b = en;
+	serial i=1 to n do
+		<t,b> = SWITCH_2X2 (<t,b>,ci);
+	end_serial
+	return (vec<t,b>);
+end_mod DELAY_CHAIN
+
+begin_mod SWITCH_2X2 (bit t_in, bit b_in, bit c_in) 
+	top_out = MUX_2X1(t_in, b_in, c_in);
+	bot_out = MUX_2X1(b_in, t_in, c_in);
+	return (vec <top_out, bot_out>);
+end_mod SWITCH_2X2

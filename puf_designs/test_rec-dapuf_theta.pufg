@@ -1,0 +1,58 @@
+begin_mod Rec_DAPUF (num n, num k, num m, vec c, bit en)
+	r_int = DAPUF(n,k,c,en);
+	k=n/m;
+	cint = c;
+	serial i=1 to m do
+		serial j=1 to k do
+			cint_j = c_j XOR rint_i;
+		end_serial
+	end_serial
+	rec_dapuf_out = DAPUF(n,k,cint,en);
+	return (bit rec_dapuf_out);
+end_mod Rec_DAPUF
+
+begin_mod DAPUF (num n, num k, num m, vec c, bit en)
+	parallel i=1 to k do
+		<ti,bi> = DELAY_CHAIN(n,c,en);
+	end_parallel
+	xor_cnt = (k*(k-1)/m);
+	g=1;
+	h=1;
+	r_h=1; 
+	serial i=1 to (k-1) do
+		parallel j=(i+1) to k do
+			at_g = ARBITER(ti,tj);
+			g=g+1;
+		end_parallel
+	end_serial
+	g=1;
+	serial i=1 to (k-1) do
+		parallel j=(i+1) to k do
+			ab_g = ARBITER(ti,tj);
+			g=g+1;
+		end_parallel
+	end_serial
+	h=1;
+	parallel g=1 to (k*(k-1)/2) do
+		r_h = r_h XOR at_g;
+	end_parallel
+	parallel g=(k*(k-1)/2) to (k*(k-1)) do
+		r_h = r_h XOR ab_g;
+	end_parallel
+	return ( vec r );
+end_mod DAPUF
+	
+begin_mod DELAY_CHAIN (num n,vec c,bit en)
+	t = en;
+	b = en;
+	serial i=1 to n do
+		<t,b> = SWITCH_2X2 (<t,b>,ci);
+	end_serial
+	return ( vec<t,b> );
+end_mod DELAY_CHAIN
+
+begin_mod SWITCH_2X2 (bit t_in, bit b_in, bit c_in) 
+	top_out = MUX_2X1(t_in, b_in, c_in);
+	bot_out = MUX_2X1(b_in, t_in, c_in);
+	return (vec <top_out, bot_out>);
+end_mod SWITCH_2X2

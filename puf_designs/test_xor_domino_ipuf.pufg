@@ -1,0 +1,72 @@
+begin_mod XOR_Domino_IPUF (num n, num k1, num k2, num k3, vec c, num s, bit en)
+	parallel i=1 to k do
+		a_i = Domino_IPUF(n,k1,k2,k3,c,s,en);
+	end_parallel 
+	xor_domino_out = 1;
+	serial i=1 to k do
+		xor_domino_out = xor_domino_out XOR a_i;
+	end_serial
+	return ( bit xor_domino_out );
+end_mod XOR_Domino_IPUF
+
+begin_mod Domino_IPUF (num n, num k1, num k2, num k3, vec c, num s, bit en)
+	y1 = XORAPUF(n,k1,c, en);
+	parallel i=1 to s-1 do
+		x[i] = c[i];
+	end_parallel
+	x_s = y1;
+	n1 = n+1;
+	s1 = s+1;
+	parallel i=s1 to n1 do
+		x[i] = c[i]-1
+	end_parallel
+	ipuf_out = IPUF(n1, k2, k3, x, en);
+	return ( bit ipuf_out );
+end_mod Domino_IPUF
+
+begin_mod IPUF (num n, num ku, num kl, vec c, num s, bit en)
+	yu = XORAPUF(n,ku,c, en);
+	parallel i=1 to s-1 do
+		x[i] = c[i];
+	end_parallel
+	x_s = yu;
+	n1 = n+1;
+	s1 = s+1;
+	parallel i=s1 to n1 do
+		x[i] = c[i]-1
+	end_parallel
+	ipuf_out = XORAPUF(n1, kl, x, en);
+	return ( bit ipuf_out );
+end_mod IPUF
+
+begin_mod XORAPUF (num n, num k, vec c, bit en)
+	parallel i=1 to k do
+		a[i] = APUF(n,c,en);
+	end_parallel 
+	xorpuf_out = 1;
+	serial i=1 to k do
+		xorpuf_out = xorpuf_out XOR a[i];
+	end_serial
+	return ( bit xorpuf_out );
+end_mod XORAPUF
+	
+begin_mod APUF (num n, vec c, bit en)
+	<t,b> = DELAY_CHAIN(n,c,en);
+	apuf_out = ARBITER(t,b);
+	return (bit apuf_out);
+end_mod APUF
+
+begin_mod DELAY_CHAIN (num n,vec c,bit en)
+	t = en;
+	b = en;
+	serial i=1 to n do
+		<t,b> = SWITCH_2X2 (<t,b>,c[i]);
+	end_serial
+	return ( vec <t,b> );
+end_mod DELAY_CHAIN
+
+begin_mod SWITCH_2X2 (bit t_in, bit b_in, bit c_in) 
+	top_out = MUX_2X1(t_in, b_in, c_in);
+	bot_out = MUX_2X1(b_in, t_in, c_in);
+	return (vec <top_out, bot_out>);
+end_mod SWITCH_2X2
