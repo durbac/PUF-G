@@ -72,7 +72,7 @@ We propose a formal representation language to uniformly represent PUF construct
                         STATEMENTS
                     end parallel
 
-We refer the 
+Refer to the link [here](http://cse.iitkgp.ac.in/~debdeep/osscrypto/PUFG.pdf) for the complete grammar and example representations. 
 
 ## Prerequisites
 
