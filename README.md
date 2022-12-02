@@ -78,8 +78,7 @@ Refer to the link [here](http://cse.iitkgp.ac.in/~debdeep/osscrypto/PUFG.pdf) fo
 
 ### For Linux (debian based systems)
 1. Install Lex and YACC packages
-> sudo apt-get install flex
-> sudo apt-get install bison
+> sudo apt-get install flex bison
 
 2. Install GCC Compiler
 > sudo apt install build-essential
