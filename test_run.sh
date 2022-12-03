@@ -7,7 +7,7 @@ cc -c lex.yy.c y.tab.c
 cc -o puf_g.out lex.yy.o y.tab.o -ll
  ./puf_g.out puf_designs/test_apuf.pufg 
 
-echo "---------------------------------------------------------------" # 
+echo "---------------------------------------------------------------"
 echo "                           XORAPUF"
 echo "---------------------------------------------------------------" 
 lex puf_g.l
@@ -34,7 +34,7 @@ cc -c lex.yy.c y.tab.c
 cc -o puf_g.out lex.yy.o y.tab.o -ll
  ./puf_g.out puf_designs/test_ipuf.pufg 
 
-echo "---------------------------------------------------------------"  # ne but no sample complexity expression
+echo "---------------------------------------------------------------"
 echo "                           DOMINO-IPUF"
 echo "---------------------------------------------------------------" 
 lex puf_g.l
@@ -43,7 +43,7 @@ cc -c lex.yy.c y.tab.c
 cc -o puf_g.out lex.yy.o y.tab.o -ll
  ./puf_g.out puf_designs/test_domino_ipuf.pufg 
 
-echo "---------------------------------------------------------------"   # ne but no sample complexity expression
+echo "---------------------------------------------------------------"
 echo "                           XOR-DOMINO-IPUF"
 echo "---------------------------------------------------------------" 
 lex puf_g.l
