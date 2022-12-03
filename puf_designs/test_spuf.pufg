@@ -17,7 +17,8 @@ begin_mod DELAY_CHAIN (num n,vec c,bit en)
 	t = en;
 	b = en;
 	serial i=1 to n do
-		<t,b> = SWITCH_2X2 (<t,b>,ci);
+		chal_bit = c[i];
+		<t,b> = SWITCH_2X2 (<t,b>,chal_bit);
 	end_serial
 	return (vec<t,b>);
 end_mod DELAY_CHAIN

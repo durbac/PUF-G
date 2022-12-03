@@ -7,7 +7,7 @@ begin_mod XOR_Cascaded_IPUF (num n, num k1, num k2, num k3, num k4, vec c, num s
 	n1 = n+1;
 	s1 = s+1;
 	parallel i=s1 to n1 do
-		x1[i] = c[i-1]
+		x1[i] = c[i-1];
 	end_parallel
 
 	y2 = XORAPUF(n1,k2,x1,en);
@@ -19,7 +19,7 @@ begin_mod XOR_Cascaded_IPUF (num n, num k1, num k2, num k3, num k4, vec c, num s
 	n1 = n+1;
 	s1 = s+1;
 	parallel i=s1 to n1 do
-		x2[i] = c[i-1]
+		x2[i] = c[i-1];
 	end_parallel
 
 	y3 = XORAPUF(n1,k3,x2,en);
@@ -33,7 +33,7 @@ begin_mod XOR_Cascaded_IPUF (num n, num k1, num k2, num k3, num k4, vec c, num s
 	n1 = n+1;
 	s1 = s+1;
 	parallel i=s1 to n1 do
-		x3[i] = c[i-1]
+		x3[i] = c[i-1];
 	end_parallel
 
 	y4 = XORAPUF(n1, k4, x3, en);
@@ -63,7 +63,8 @@ begin_mod DELAY_CHAIN (num n,vec c,bit en)
 	t = en;
 	b = en;
 	serial i=1 to n do
-		<t,b> = SWITCH_2X2 (<t,b>,c[i]);
+		chal_bit = c[i];
+		<t,b> = SWITCH_2X2 (<t,b>,chal_bit);
 	end_serial
 	return ( vec <t,b> );
 end_mod DELAY_CHAIN
