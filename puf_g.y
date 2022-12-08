@@ -2312,11 +2312,11 @@ char* identifyModule (ModuleNode *module, int PACSetting) {
             subModulesIter->rep = rep;
             subModulesIter->ns = ns;
             if(PACSetting==0) {
-                printf("rep=%s\n", rep);
+                printf("rep = %s\n", rep);
                 return rep;
             }
             else if(PACSetting==1) {
-                printf("ns=%s\n", ns);
+                printf("ns = %s\n", ns);
                 return ns;
             }
         }
@@ -2796,7 +2796,8 @@ void extraxtPACComplexityFromPUFGObjectModel() {
     char* rep = identifyModule(currentModuleNode, PACSetting);
     char* NS;
     printf("--------------------after identify_module-------------------- rep = %s \n", rep);
-    if(rep==NULL) {
+    if(rep=="-") {
+        printf("Modifying PACSetting to 1\n");
         PACSetting = 1;
         NS = identifyModule(currentModuleNode, PACSetting); //replace currentModule with lastModule - last module where rep was not found
     }
