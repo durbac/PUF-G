@@ -1023,13 +1023,13 @@ char* getModuleName(ModuleNode *module) {
     // }
 }
 
-int isPrimitive(ModuleNode *module) {
-    // printf("isPrimitive %s\n", module->primitivePointer);
-    if(module) {
-        if(strcmp(module->primitivePointer,"APUF")==0 || strcmp(module->primitivePointer,"ROPUF")==0 || strcmp(module->primitivePointer,"DELAY_CHAIN")==0 
-            || strcmp(module->primitivePointer,"ARBITER")==0 || strcmp(module->primitivePointer,"SWITCH_2X2")==0 || strcmp(module->primitivePointer, "MUX_2X1")==0)
+int isPrimitive(char *moduleName) {
+    // printf("isPrimitive %s\n", moduleName);
+    // if(module) {
+        if(strcmp(moduleName,"APUF")==0 || strcmp(moduleName,"ROPUF")==0 || strcmp(moduleName,"DELAY_CHAIN")==0 
+            || strcmp(moduleName,"ARBITER")==0 || strcmp(moduleName,"SWITCH_2X2")==0 || strcmp(moduleName, "MUX_2X1")==0)
             return 1;
-    }
+    // }
     return 0;
 }
 
@@ -2270,13 +2270,13 @@ char* check_submodule_connection_2 (ModuleNode *module, ModuleNode *currentSubmo
 *****************************************************************************************/
 
 char* identifyModule (ModuleNode *module, int PACSetting) {
-    printf("-------- identifyModule %d %s \t PACSetting = %d----------\n", module!=NULL, module->primitivePointer, PACSetting);
+    printf("-------- identifyModule %d %s \t PACSetting = %d --------\n", module!=NULL, module->primitivePointer, PACSetting);
     char *type, *rep; //representation
     char *ns; //Noise sensitivity
     Node *param;
 
     //check for the most primitive module
-    if(isPrimitive(module)) {
+    if(isPrimitive(module->primitivePointer)) {
         type = getModuleName(module);   //module name
         param = handleInput(module->inputDefPointer);   //dc: send param to upper/parent modules for composition
         
@@ -2305,19 +2305,24 @@ char* identifyModule (ModuleNode *module, int PACSetting) {
 
         //the primitive module definition does not exists - it is either a primitive element or not defined
         if(!subModulesIter->modulePointer) { 
-            printf("modulePointer not available - Submodule not defined as it is primitive\n");
+            // check if the module is not a ptimitive module return to the topmost module
+            if(!isPrimitive(subModulesIter->primitiveName)) {
+                printf("in if\n");
+                return NULL;
+            }
+            printf("modulePointer not available - Submodule is primitive! \n");
             printf("subModulesIter->primitiveName = %s\n", subModulesIter->primitiveName);
             rep = getRepresentation(subModulesIter->primitiveName);
             ns = getNoiseSensitivity(subModulesIter->primitiveName);
             subModulesIter->rep = rep;
             subModulesIter->ns = ns;
             if(PACSetting==0) {
-                printf("rep = %s\n", rep);
-                return rep;
+                printf("in while primitive rep = %s\n", rep);
+                // return rep;
             }
             else if(PACSetting==1) {
-                printf("ns = %s\n", ns);
-                return ns;
+                printf("in while primitive ns = %s\n", ns);
+                // return ns;
             }
         }
         else {
@@ -2330,14 +2335,16 @@ char* identifyModule (ModuleNode *module, int PACSetting) {
         // if(subModulesIter->visited==0) { // remove visited condition as the module might be visited twice if parent module is not learnable in the DI setting
             
             char* result = identifyModule(subMod, PACSetting);
+            if(result==NULL)
+                return result;
             if(PACSetting==0) {
                 subModulesIter->rep = result;
                 subModulesIter->ns = NULL;
-                printf("in DI PACSetting After identifyModule %s -> rep = %s\n", module->primitivePointer, subModulesIter->rep);
+                printf("in DI PAC Setting After identifyModule %s -> rep = %s\n", module->primitivePointer, subModulesIter->rep);
             }
             else if(PACSetting==1) {
                 subModulesIter->ns = result;
-                printf("in DD PACSetting After identifyModule %s -> ns = %s\n", module->primitivePointer, subModulesIter->ns);
+                printf("in DD PAC Setting After identifyModule %s -> ns = %s\n", module->primitivePointer, subModulesIter->ns);
             }
             subModulesIter->visited = 1;
         // }
@@ -2777,14 +2784,17 @@ void extraxtPACComplexityFromPUFGObjectModel() {
     if(currentModuleNode->primitivePointer==NULL) {
         printf("Incomplete Module Definition\n");
         fprintf(yyout,"// Module Error: Module (PrimitiveNode) is not Specified !!\n");
+        exit(1);
     }
     else if(currentModuleNode->statementPointer==NULL) {
         printf("Incomplete Module Definition\n");
         fprintf(yyout,"// Module Error: Module (StatementNode) is not Specified !!\n");
+        exit(1);
     }
     else if(currentModuleNode->inputDefPointer==NULL) {
         printf("Incomplete Module Definition\n");
         fprintf(yyout,"// Module Error: Module (InputDefNode) is not Specified !!\n");
+        exit(1);
     }
     char *primnode = currentModuleNode->primitivePointer;
     InputDefNode *inputdefnode = currentModuleNode->inputDefPointer;
@@ -2796,11 +2806,22 @@ void extraxtPACComplexityFromPUFGObjectModel() {
     char* rep = identifyModule(currentModuleNode, PACSetting);
     char* NS;
     printf("--------------------after identify_module-------------------- rep = %s \n", rep);
+    if(rep==NULL) {
+        printf("Incomplete Module Definition\n");
+        fprintf(yyout,"// Module Error: Module not Defined in description !!\n");
+        exit(1);
+    }
     if(rep=="-") {
         printf("Modifying PACSetting to 1\n");
         PACSetting = 1;
         NS = identifyModule(currentModuleNode, PACSetting); //replace currentModule with lastModule - last module where rep was not found
     }
+    if(NS==NULL) {
+        printf("Incomplete Module Definition\n");
+        fprintf(yyout,"// Module Error: Module not Defined in description !!\n");
+        exit(1);
+    }
+
     // param = modify_param(currentModuleNode, rep, param);
     // param = modifyParam(currentModuleNode, PACSetting, rep, NS); --check significance
     // compute_sample_complexity(param, rep);
@@ -2821,7 +2842,7 @@ int main(int argc, char **argv){
     if(argc > 3){
         fprintf(stderr,"Error: Too Many Arguements!!\n");
         printf("Error: Too Many Arguements!!\n");
-        exit(0);
+        exit(1);
     }
     if(argc > 1){
         inputFile = argv[1];
@@ -2829,7 +2850,7 @@ int main(int argc, char **argv){
         if(yyin == NULL){
             fprintf(stderr,"Error: Cannot Open Input File!!\n");
             printf("Error: Cannot Open Input File!!\n");
-            exit(0);
+            exit(1);
         }
     }
     else {
@@ -2838,7 +2859,7 @@ int main(int argc, char **argv){
         if(yyin == NULL){
             fprintf(stderr,"Error: Cannot Open Input File!!\n");
             printf("Error: Cannot Open Input File!!\n");
-            exit(0);
+            exit(1);
         }
     }
     if(argc > 2){
