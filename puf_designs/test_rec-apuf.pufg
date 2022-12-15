@@ -1,7 +1,9 @@
-%change rec-apuf module
 begin_mod Rec_APUF (num n, vec c, bit en)
 	r_int = APUF(n,c,en);
-	apuf_out = ARBITER(t,b);
+	serial i=1 to n do
+		c_int[i] = c[i] XOR r_int;
+	end_serial
+	apuf_out = APUF(n,c_int,en);
 	return (bit apuf_out);
 end_mod Rec_APUF
 
